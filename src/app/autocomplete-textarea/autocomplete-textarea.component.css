@@ -8,6 +8,25 @@ textarea {
   font: -webkit-small-control;
   padding: 2px 3px;
   height: 100px;
-  width: 300px;
+  width: 100%;
   overflow: auto;
+}
+
+.menu {
+  background-color: #f3f3f3;
+  position: absolute;
+  cursor: pointer;
+}
+
+.menu.menu-item {
+  padding: 1rem;
+}
+
+.menu.menu-item:hover:not(.selected) {
+  background-color: #fafafa;
+}
+
+.menu-item.selected {
+  background-color: slateGray;
+  color: white;
 }

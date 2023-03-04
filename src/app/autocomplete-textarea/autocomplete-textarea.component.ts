@@ -7,7 +7,6 @@ import {
   AfterViewChecked,
   HostListener,
 } from '@angular/core';
-import { Log } from '@angular/core/testing/src/logger';
 
 @Component({
   selector: 'app-autocomplete-textarea',
@@ -213,7 +212,7 @@ export class AutocompleteTextareaComponent implements OnInit {
   menuItemFn = (item, setItem, selected) => {
     const div = document.createElement('div');
     div.setAttribute('role', 'option');
-    div.className = 'menu-item';
+    div.classList.add('menu-item');
     if (selected) {
       div.classList.add('selected');
       div.setAttribute('aria-selected', '');
