@@ -18,15 +18,15 @@ textarea {
   cursor: pointer;
 }
 
-.menu.menu-item {
+.menu-item {
   padding: 1rem;
 }
 
-.menu.menu-item:hover:not(.selected) {
+.menu-item:hover:not(.selected) {
   background-color: #fafafa;
 }
 
 .menu-item.selected {
-  background-color: slateGray;
+  background-color: slateGray !important;
   color: white;
 }
