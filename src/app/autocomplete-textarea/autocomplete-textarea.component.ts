@@ -31,12 +31,8 @@ export class AutocompleteTextareaComponent implements OnInit {
 
   componentRef: any;
   @ViewChild('textarea') textarea: ElementRef;
-  @ViewChild('list') list: ElementRef;
+  @ViewChild('list') menuRef: ElementRef;
 
-  @HostListener('input', ['$event'])
-  onInputStart(event: Event) {
-    this.onInput;
-  }
   constructor(public resolver: ComponentFactoryResolver) {}
 
   ngOnInit() {
@@ -59,16 +55,17 @@ export class AutocompleteTextareaComponent implements OnInit {
     this.isFirefox =
       typeof window !== 'undefined' && window['mozInnerScreenX'] != null;
     this.options = [];
-
-    /*setTimeout(() => {
-      this.textarea.nativeElement.addEventListener('keydown', this.onKeyDown);
-      this.textarea.nativeElement.addEventListener('input', this.onInput);
-    }, 0);/** */
   }
 
-  /*ngAfterViewChecked() {
-    console.log(this.textarea)
-  }/** */
+  @HostListener('input', ['$event'])
+  onInputStart(event: Event) {
+    this.onInput();
+  }
+
+  @HostListener('keydown', ['$event'])
+  onKeyDownStart(event: Event) {
+    this.onKeyDown(event);
+  }
 
   onInput() {
     const positionIndex = this.textarea.nativeElement.selectionStart;
@@ -187,5 +184,76 @@ export class AutocompleteTextareaComponent implements OnInit {
     div.remove();
 
     return coordinates;
+  }
+
+  renderMenu() {
+    if (this.top === undefined) {
+      this.menuRef.nativeElement.hidden = true;
+      return;
+    }
+
+    this.menuRef.nativeElement.style.left = this.left + 'px';
+    this.menuRef.nativeElement.style.top = this.top + 'px';
+    this.menuRef.nativeElement.innerHTML = '';
+
+    this.options.forEach((option, idx) => {
+      this.menuRef.nativeElement.appendChild(
+        this.menuItemFn(option, this.selectItem(idx), this.active === idx)
+      );
+    });
+
+    this.menuRef.nativeElement.hidden = false;
+  }
+
+  menuItemFn = (user, setItem, selected) => {
+    const div = document.createElement('div');
+    div.setAttribute('role', 'option');
+    div.className = 'menu-item';
+    if (selected) {
+      div.classList.add('selected');
+      div.setAttribute('aria-selected', '');
+    }
+    div.textContent = user.username;
+    div.onclick = setItem;
+    return div;
+  };
+
+  selectItem(active) {
+    return () => {
+      const preMention = this.textarea.nativeElement.value.substr(
+        0,
+        this.triggerIdx
+      );
+      const option = this.options[active];
+      const mention = this.replaceFn(
+        option,
+        this.textarea.nativeElement.value[this.triggerIdx]
+      );
+      const postMention = this.textarea.nativeElement.value.substr(
+        this.textarea.nativeElement.selectionStart
+      );
+      const newValue = `${preMention}${mention}${postMention}`;
+      this.textarea.nativeElement.value = newValue;
+      const caretPosition =
+        this.textarea.nativeElement.value.length - postMention.length;
+      this.textarea.nativeElement.setSelectionRange(
+        caretPosition,
+        caretPosition
+      );
+      this.closeMenu();
+      this.textarea.nativeElement.focus();
+    };
+  }
+
+  replaceFn = (user, trigger) => `${trigger}${user.username}`;
+
+  closeMenu() {
+    setTimeout(() => {
+      this.options = [];
+      this.left = undefined;
+      this.top = undefined;
+      this.triggerIdx = undefined;
+      this.renderMenu();
+    }, 0);
   }
 }
