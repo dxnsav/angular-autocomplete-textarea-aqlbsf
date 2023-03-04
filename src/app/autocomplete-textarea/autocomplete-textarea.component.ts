@@ -5,15 +5,15 @@ import {
   ComponentFactoryResolver,
   ElementRef,
   AfterViewChecked,
+  HostListener,
 } from '@angular/core';
-import { Log } from '@angular/core/testing/src/logger';
 
 @Component({
   selector: 'app-autocomplete-textarea',
   templateUrl: './autocomplete-textarea.component.html',
   styleUrls: ['./autocomplete-textarea.component.css'],
 })
-export class AutocompleteTextareaComponent implements OnInit, AfterViewChecked {
+export class AutocompleteTextareaComponent implements OnInit {
   divInput;
   divList;
   isTagging: boolean = false;
@@ -33,6 +33,10 @@ export class AutocompleteTextareaComponent implements OnInit, AfterViewChecked {
   @ViewChild('textarea') textarea: ElementRef;
   @ViewChild('list') list: ElementRef;
 
+  @HostListener('input', ['$event'])
+  onInputStart(event: Event) {
+    this.onInput;
+  }
   constructor(public resolver: ComponentFactoryResolver) {}
 
   ngOnInit() {
@@ -56,13 +60,17 @@ export class AutocompleteTextareaComponent implements OnInit, AfterViewChecked {
       typeof window !== 'undefined' && window['mozInnerScreenX'] != null;
     this.options = [];
 
-    this.textarea.nativeElement.addEventListener('keydown', this.onKeyDown);
-    this.textarea.nativeElement.addEventListener('input', this.onInput);
+    /*setTimeout(() => {
+      this.textarea.nativeElement.addEventListener('keydown', this.onKeyDown);
+      this.textarea.nativeElement.addEventListener('input', this.onInput);
+    }, 0);/** */
   }
 
-  ngAfterViewChecked() {}
+  /*ngAfterViewChecked() {
+    console.log(this.textarea)
+  }/** */
 
-  onInput(ev) {
+  onInput() {
     const positionIndex = this.textarea.nativeElement.selectionStart;
     const textBeforeCaret = this.textarea.nativeElement.value.slice(
       0,
