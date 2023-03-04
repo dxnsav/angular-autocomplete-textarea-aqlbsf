@@ -7,6 +7,7 @@ import {
   AfterViewChecked,
   HostListener,
 } from '@angular/core';
+import { Log } from '@angular/core/testing/src/logger';
 
 @Component({
   selector: 'app-autocomplete-textarea',
@@ -39,15 +40,15 @@ export class AutocompleteTextareaComponent implements OnInit {
     this.items = [
       {
         id: 1,
-        name: '${name}',
+        name: '{name}',
       },
       {
         id: 2,
-        name: '${surname}',
+        name: '{surname}',
       },
       {
         id: 3,
-        name: '${email}',
+        name: '{email}',
       },
     ];
 
@@ -82,13 +83,13 @@ export class AutocompleteTextareaComponent implements OnInit {
     const keystrokeTriggered = maybeTrigger === '$';
 
     if (!keystrokeTriggered) {
-      //this.closeMenu()
+      this.closeMenu();
       console.log(false);
       return;
     }
 
     const query = textBeforeCaret.slice(triggerIdx + 1);
-    //this.makeOptions(query)
+    this.makeOptions(query);
 
     const coords = this.getCaretCoordinates(
       this.textarea.nativeElement,
@@ -110,7 +111,7 @@ export class AutocompleteTextareaComponent implements OnInit {
         coords.height -
         this.textarea.nativeElement.scrollTop;
       this.triggerIdx = triggerIdx;
-      //this.renderMenu()
+      this.renderMenu();
       console.log(true);
     }, 0);
   }
@@ -121,19 +122,19 @@ export class AutocompleteTextareaComponent implements OnInit {
       switch (ev.key) {
         case 'ArrowDown':
           this.active = Math.min(this.active + 1, this.options.length - 1);
-          //this.renderMenu()
+          this.renderMenu();
           console.log('down');
           keyCaught = true;
           break;
         case 'ArrowUp':
           this.active = Math.max(this.active - 1, 0);
-          //this.renderMenu()
+          this.renderMenu();
           console.log('up');
           keyCaught = true;
           break;
         case 'Enter':
         case 'Tab':
-          //this.selectItem(this.active)()
+          this.selectItem(this.active)();
           console.log('entub');
           keyCaught = true;
           break;
@@ -196,16 +197,20 @@ export class AutocompleteTextareaComponent implements OnInit {
     this.menuRef.nativeElement.style.top = this.top + 'px';
     this.menuRef.nativeElement.innerHTML = '';
 
+    console.log(this.menuRef);
+
     this.options.forEach((option, idx) => {
       this.menuRef.nativeElement.appendChild(
         this.menuItemFn(option, this.selectItem(idx), this.active === idx)
       );
     });
 
+    console.log(this.options);
+
     this.menuRef.nativeElement.hidden = false;
   }
 
-  menuItemFn = (user, setItem, selected) => {
+  menuItemFn = (item, setItem, selected) => {
     const div = document.createElement('div');
     div.setAttribute('role', 'option');
     div.className = 'menu-item';
@@ -213,7 +218,7 @@ export class AutocompleteTextareaComponent implements OnInit {
       div.classList.add('selected');
       div.setAttribute('aria-selected', '');
     }
-    div.textContent = user.username;
+    div.textContent = item.name;
     div.onclick = setItem;
     return div;
   };
@@ -245,7 +250,11 @@ export class AutocompleteTextareaComponent implements OnInit {
     };
   }
 
-  replaceFn = (user, trigger) => `${trigger}${user.username}`;
+  replaceFn = (item, trigger) => `${trigger}${item.name}`;
+  resolveFn = (prefix) =>
+    prefix === ''
+      ? this.items
+      : this.items.filter((item) => item.name.startsWith(prefix));
 
   closeMenu() {
     setTimeout(() => {
@@ -255,5 +264,15 @@ export class AutocompleteTextareaComponent implements OnInit {
       this.triggerIdx = undefined;
       this.renderMenu();
     }, 0);
+  }
+
+  async makeOptions(query) {
+    const options = await this.resolveFn(query);
+    if (options.lenght !== 0) {
+      this.options = options;
+      this.renderMenu();
+    } else {
+      this.closeMenu();
+    }
   }
 }
