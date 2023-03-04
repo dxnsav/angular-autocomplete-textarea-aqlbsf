@@ -1,0 +1,13 @@
+textarea {
+  -moz-appearance: textfield;
+  -webkit-appearance: textfield;
+  background-color: white;
+  background-color: -moz-field;
+  border: 1px solid darkgray;
+  font: -moz-field;
+  font: -webkit-small-control;
+  padding: 2px 3px;
+  height: 100px;
+  width: 300px;
+  overflow: auto;
+}
