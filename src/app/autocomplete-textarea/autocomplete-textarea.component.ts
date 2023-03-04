@@ -4,7 +4,6 @@ import {
   ViewChild,
   ComponentFactoryResolver,
   ElementRef,
-  AfterViewChecked,
   HostListener,
 } from '@angular/core';
 
@@ -38,15 +37,12 @@ export class AutocompleteTextareaComponent implements OnInit {
   ngOnInit() {
     this.items = [
       {
-        id: 1,
         name: '{name}',
       },
       {
-        id: 2,
-        name: '{surname}',
+        name: '{id}',
       },
       {
-        id: 3,
         name: '{email}',
       },
     ];
@@ -146,20 +142,16 @@ export class AutocompleteTextareaComponent implements OnInit {
   }
 
   getCaretCoordinates(element, position) {
-    const div = document.createElement('div');
-    document.body.appendChild(div);
+    const li = document.createElement('li');
+    document.body.appendChild(li);
 
-    const style = div.style;
+    const style = li.style;
     const computed = getComputedStyle(element);
 
     style.whiteSpace = 'pre-wrap';
     style.wordWrap = 'break-word';
     style.position = 'absolute';
     style.visibility = 'hidden';
-
-    /*properties.forEach(prop => {
-      style[prop] = computed[prop]
-    })/** */
 
     if (this.isFirefox) {
       if (element.scrollHeight > parseInt(computed.height))
@@ -168,11 +160,11 @@ export class AutocompleteTextareaComponent implements OnInit {
       style.overflow = 'hidden';
     }
 
-    div.textContent = element.value.substring(0, position);
+    li.textContent = element.value.substring(0, position);
 
     const span = document.createElement('span');
     span.textContent = element.value.substring(position) || '.';
-    div.appendChild(span);
+    li.appendChild(span);
 
     const coordinates = {
       top: span.offsetTop + parseInt(computed['borderTopWidth']),
@@ -181,7 +173,7 @@ export class AutocompleteTextareaComponent implements OnInit {
       height: span.offsetHeight,
     };
 
-    div.remove();
+    li.remove();
 
     return coordinates;
   }
@@ -210,16 +202,18 @@ export class AutocompleteTextareaComponent implements OnInit {
   }
 
   menuItemFn = (item, setItem, selected) => {
-    const div = document.createElement('div');
-    div.setAttribute('role', 'option');
-    div.classList.add('menu-item');
+    const li = document.createElement('li');
+    li.setAttribute('role', 'option');
+    li.classList.add('menu-item');
     if (selected) {
-      div.classList.add('selected');
-      div.setAttribute('aria-selected', '');
+      li.classList.add('selected');
+      li.setAttribute('aria-selected', '');
+      li.style.backgroundColor = 'slateGray';
+      li.style.color = 'white';
     }
-    div.textContent = item.name;
-    div.onclick = setItem;
-    return div;
+    li.textContent = this.trimBrackets(item.name);
+    li.onclick = setItem;
+    return li;
   };
 
   selectItem(active) {
@@ -273,5 +267,11 @@ export class AutocompleteTextareaComponent implements OnInit {
     } else {
       this.closeMenu();
     }
+  }
+
+  trimBrackets(word) {
+    return word.charAt(0) === '{' && word.charAt(word.length - 1) === '}'
+      ? word.substring(1, word.length - 1)
+      : word;
   }
 }

@@ -16,6 +16,8 @@ textarea {
   background-color: #f3f3f3;
   position: absolute;
   cursor: pointer;
+  list-style: none;
+  padding: 0;
 }
 
 .menu-item {
@@ -27,6 +29,6 @@ textarea {
 }
 
 .menu-item.selected {
-  background-color: slateGray !important;
+  background-color: slateGray;
   color: white;
 }
